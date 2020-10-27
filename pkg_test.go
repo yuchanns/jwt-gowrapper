@@ -10,6 +10,7 @@ import (
 
 func TestJwt_Validate(t *testing.T) {
 	conn := redigomock.NewConn()
+	defer conn.Close()
 	// mock redis
 	conn.Command("SETEX").Expect(1)
 	conn.Command("TTL").Expect(int64(86395))
@@ -33,6 +34,7 @@ func TestJwt_Validate(t *testing.T) {
 
 func TestJwt_Invalidate(t *testing.T) {
 	conn := redigomock.NewConn()
+	defer conn.Close()
 	// mock redis
 	conn.Command("SETEX").Expect(1)
 	conn.Command("DEL").Expect(1)
@@ -71,6 +73,7 @@ func TestNewStorageRedis(t *testing.T) {
 		},
 	}
 	conn := pool.Get()
+	defer conn.Close()
 	storage := NewStorageRedis(conn)
 	secretKey := []byte("3mKfbv5Fj47Ujv")
 	j := NewDefaultJwt(storage, secretKey, 2*time.Second)
