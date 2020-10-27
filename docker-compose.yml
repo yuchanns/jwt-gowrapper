@@ -1,0 +1,18 @@
+version: '3'
+services:
+  golang:
+    container_name: 'golang'
+    build:
+      dockerfile: Dockerfile
+      context: .
+    networks:
+      - code-network
+  redis:
+    container_name: redis
+    image: library/redis:5.0
+    networks:
+      - code-network
+
+networks:
+  code-network:
+    driver: bridge

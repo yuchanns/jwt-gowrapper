@@ -1,0 +1,52 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.14
+      - image: circleci/redis:5-alpine
+
+    parallelism: 2
+
+    environment:
+      TEST_RESULTS: /tmp/test-results
+      CGO_ENABLED: 0
+
+    steps:
+      - checkout
+      - run: mkdir -p $TEST_RESULTS
+
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+
+      - run:
+          name: Waiting for Postgres to be ready
+          command: dockerize -wait tcp://localhost:6379 -timeout 1m
+
+      - run:
+          name: Add service name redis to hosts
+          command: echo 127.0.0.1 redis | sudo tee -a /etc/hosts
+
+      - run:
+          name: Run unit tests
+
+          command: |
+            PACKAGE_NAMES=$(go list ./... | circleci tests split --split-by=timings --timings-type=classname)
+            gotestsum --junitfile ${TEST_RESULTS}/gotestsum-report.xml -- $PACKAGE_NAMES
+
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: raw-test-output
+
+      - store_test_results:
+          path: /tmp/test-results
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - build
