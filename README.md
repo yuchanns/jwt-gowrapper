@@ -1,5 +1,6 @@
 # jwt-gowrapper
 [![circleci](https://circleci.com/gh/yuchanns/jwt-gowrapper.svg?style=svg)](https://circleci.com/gh/yuchanns/jwt-gowrapper)
+[![GoDoc](https://pkg.go.dev/badge/github.com/yuchanns/jwt-gowrapper)](https://pkg.go.dev/github.com/yuchanns/jwt-gowrapper)
 
 a wrapper of [dgrijalva/jwt-go](https://github.com/dgrijalva/jwt-go) with storage interface
 
