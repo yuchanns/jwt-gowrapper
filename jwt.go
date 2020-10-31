@@ -1,8 +1,8 @@
 package jwt_gowrapper
 
 import (
-	"bytes"
-	"compress/gzip"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
@@ -87,21 +87,15 @@ func (j *Jwt) Invalidate(tokenString string) error {
 }
 
 // getKey build a key string from the jwt.Claims
+// keep the key length by md5 hash
 func (j *Jwt) getKey() (string, error) {
-	var b bytes.Buffer
-	gz := gzip.NewWriter(&b)
-	defer gz.Close()
 	jsonByte, err := json.Marshal(j.token.Claims)
 	if err != nil {
 		return "", err
 	}
-	if _, err := gz.Write(jsonByte); err != nil {
-		return "", err
-	}
-	if err := gz.Flush(); err != nil {
-		return "", err
-	}
-	return b.String(), nil
+	hash := md5.New()
+	hash.Write(jsonByte)
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
 // parseToken parse the given tokenString and set to jwt.Token
